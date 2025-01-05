@@ -1,0 +1,3 @@
+/Users/viktor/PetProjects/ncurses_test/GameOfLife/without_commentaries/build/CMakeFiles/GameOfLife.dir
+/Users/viktor/PetProjects/ncurses_test/GameOfLife/without_commentaries/build/CMakeFiles/edit_cache.dir
+/Users/viktor/PetProjects/ncurses_test/GameOfLife/without_commentaries/build/CMakeFiles/rebuild_cache.dir
