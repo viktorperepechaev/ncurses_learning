@@ -2,21 +2,24 @@
 
 #include <ncurses.h>
 
+#include <chrono>
 #include <map>
 #include <set>
-#include <vector>
 #include <thread>
-#include <chrono>
+#include <vector>
 
 class GameGrid {
  public:
   GameGrid(const int cellHeight, const int cellWidth, const int gridHeight,
-           const int gridWidth,
-           const std::vector<std::pair<int, int>>& aliveCells);
+           const int gridWidth);
+
+  void InputLivingCells();
 
   void StartInfiniteCycle();
 
  private:
+  void DrawBox() const;
+
   std::pair<int, int> GetTopLeftCornerCoordinates(int yIndex, int xIndex) const;
   std::pair<int, int> GetBottomRightCornerCoordinates(int yIndex,
                                                       int xIndex) const;

@@ -28,15 +28,8 @@ void RunStages() {
   clear();
   refresh();
 
-  std::vector<std::pair<int, int>> aliveCells = {
-    {0, 1},
-    {1, 2},
-    {2, 0},
-    {2, 1},
-    {2, 2}
-  };
   nodelay(stdscr, TRUE);
-  GameGrid(1, 2, std::stoi(userAnswers[0]), std::stoi(userAnswers[1]), aliveCells).StartInfiniteCycle();
+  GameGrid(1, 2, std::stoi(userAnswers[0]), std::stoi(userAnswers[1])).StartInfiniteCycle();
 
   getch();
 }

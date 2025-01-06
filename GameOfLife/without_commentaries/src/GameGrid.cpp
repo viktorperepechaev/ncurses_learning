@@ -1,24 +1,88 @@
 #include "GameGrid.h"
 
 GameGrid::GameGrid(const int cellHeight, const int cellWidth,
-                   const int gridHeight, const int gridWidth,
-                   const std::vector<std::pair<int, int>>& aliveCells)
+                   const int gridHeight, const int gridWidth)
     : cellHeight_(cellHeight),
       cellWidth_(cellWidth),
       gridHeight_(gridHeight),
-      gridWidth_(gridWidth),
-      aliveCells_(aliveCells.begin(), aliveCells.end()) {}
+      gridWidth_(gridWidth) {
+  DrawBox();
+  refresh();
+  InputLivingCells();
+}
+
+void GameGrid::InputLivingCells() {
+  MEVENT event;
+
+  mousemask(ALL_MOUSE_EVENTS | REPORT_MOUSE_POSITION, nullptr);
+
+  printf("\033[?1003h\n");
+
+  int ch;
+  while (true) {
+    ch = getch();
+    if (ch == '\n') {
+      break;
+    }
+    if (getmouse(&event) != OK) {
+      continue;
+    }
+    if (event.bstate & BUTTON1_CLICKED) {
+      int y = event.y - 1;  // -1 из-за обводки
+      int x = event.x - 1;  // -1 из-за обводки
+      int yIndex = y / cellHeight_;
+      int xIndex = x / cellWidth_;
+      if (!AreValidCoordinates(yIndex, xIndex)) {
+        continue;
+      }
+      if (aliveCells_.find(std::make_pair(yIndex, xIndex)) !=
+          aliveCells_.end()) {
+        aliveCells_.erase(std::make_pair(yIndex, xIndex));
+        DisplayWithoutChangingOutputAttributes(yIndex, xIndex);
+      } else {
+        aliveCells_.insert(std::make_pair(yIndex, xIndex));
+        attron(A_REVERSE);
+        DisplayWithoutChangingOutputAttributes(yIndex, xIndex);
+        attroff(A_REVERSE);
+      }
+      refresh();
+    }
+  }
+
+  printf("\033[?1003l\n");
+
+  mousemask(0, nullptr);
+}
 
 void GameGrid::StartInfiniteCycle() {
   while (true) {
     clear();
+    DrawBox();
     Display();
     int ch = getch();
     if (ch == 'q' || ch == 'Q') {
       break;
     }
     Update();
+    refresh();
   }
+}
+
+void GameGrid::DrawBox() const {
+  int start_y = 0, start_x = 0;
+  int height = gridHeight_ * cellHeight_ + 2,
+      width = gridWidth_ * cellWidth_ + 2;
+
+  mvhline(start_y, start_x, '-', width);
+  mvhline(start_y + height - 1, start_x, '-', width);
+
+  mvvline(start_y, start_x, '|', height);
+  mvvline(start_y, start_x + width - 1, '|', height);
+
+  mvaddch(start_y, start_x, '+');
+  mvaddch(start_y, start_x + width - 1, '+');
+  mvaddch(start_y + height - 1, start_x, '+');
+  mvaddch(start_y + height - 1, start_x + width - 1, '+');
 }
 
 std::pair<int, int> GameGrid::GetTopLeftCornerCoordinates(int yIndex,
@@ -66,7 +130,7 @@ void GameGrid::DisplayWithoutChangingOutputAttributes(int y, int x) const {
   auto [endY, endX] = GetBottomRightCornerCoordinates(y, x);
   for (int i = startY; i <= endY; ++i) {
     for (int j = startX; j <= endX; ++j) {
-      mvaddch(i, j, ' ');
+      mvaddch(i + 1, j + 1, ' ');
     }
   }
 }
